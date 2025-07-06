@@ -3,51 +3,147 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Nolann au trône 💩</title>
+<title>Nolann au trône 💩 - Animé</title>
 <style>
+  /* Fond animé avec gradient mouvant */
+  @keyframes gradientBG {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
   body {
-    font-family: Arial, sans-serif;
-    background: #fffbe6;
-    text-align: center;
-    padding: 2em;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(270deg, #ff9a9e, #fad0c4, #fad0c4, #ff9a9e);
+    background-size: 800% 800%;
+    animation: gradientBG 20s ease infinite;
+    margin: 0;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #fff;
+    height: 100vh;
   }
-  button {
-    font-size: 2em;
-    padding: 1em 2em;
-    background: #ffb347;
-    border: none;
-    border-radius: 1em;
-    cursor: pointer;
-    margin-bottom: 1em;
+
+  /* Style pour le logo */
+  #logo {
+    max-width: 300px;
+    width: 80vw;
+    height: auto;
+    margin-bottom: 1rem;
   }
-  #log {
-    max-width: 400px;
-    margin: auto;
-    text-align: left;
-    font-size: 1.2em;
-    min-height: 150px;
-    border: 2px solid #ffb347;
-    border-radius: 1em;
-    padding: 1em;
-    background: #fff9d6;
-    overflow-y: auto;
-  }
+
   #counter {
-    font-weight: bold;
-    font-size: 1.5em;
-    margin-bottom: 1em;
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  /* Bouton pulse */
+  #poopBtn {
+    background: #ff6f61;
+    border: none;
+    padding: 1.2rem 3rem;
+    font-size: 1.8rem;
+    border-radius: 50px;
+    cursor: pointer;
+    color: white;
+    box-shadow: 0 0 15px #ff6f61aa;
+    animation: pulse 2s infinite;
+    position: relative;
+    overflow: visible;
+    outline: none;
+    user-select: none;
+  }
+
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 15px #ff6f61aa;
+      transform: scale(1);
+    }
+    50% {
+      box-shadow: 0 0 25px #ff6f61ee;
+      transform: scale(1.05);
+    }
+    100% {
+      box-shadow: 0 0 15px #ff6f61aa;
+      transform: scale(1);
+    }
+  }
+
+  /* Log container */
+  #log {
+    margin-top: 2rem;
+    max-width: 400px;
+    width: 90vw;
+    max-height: 250px;
+    overflow-y: auto;
+    background: rgba(255 255 255 / 0.3);
+    border-radius: 15px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+    color: #222;
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+
+  /* Animation fade-in + slide pour chaque message */
+  .log-entry {
+    opacity: 0;
+    transform: translateX(-20px);
+    animation: slideFadeIn 0.5s forwards;
+    margin-bottom: 0.5rem;
+  }
+
+  @keyframes slideFadeIn {
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Confetti container */
+  #confetti-container {
+    pointer-events: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: visible;
+    z-index: 9999;
+  }
+
+  /* Confetti pieces */
+  .confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: #ff6f61;
+    opacity: 0.8;
+    will-change: transform, opacity;
+    border-radius: 2px;
   }
 </style>
 </head>
 <body>
 
-<h1>Nolann au trône 💩</h1>
+<!-- Logo à la place du h1 -->
+<img id="logo" src="image/logo.png" alt="Nolann au trône 💩" />
+
 <div id="counter">Cacas totaux : 0</div>
 <button id="poopBtn">J’ai fait caca</button>
 <div id="log"></div>
+<div id="confetti-container"></div>
 
 <script>
-const webhookURL = "https://discord.com/api/webhooks/1391523815632277657/8IQKeEuYyHNE9TcnmTzEtOZi5EaQG8Baq-01W32xN3bRXY-PubyuKkAycI9GyZrh9gYf";
+const webhookURL = "https://discord.com/api/webhooks/1391523815632277657/8IQKeEuYyHNE9TcnmTzEtOZi5EaQG8Baq-01W32xN3bRXY-PubyuKkAycI9GyZrh9gYf"; // Remplace ici
 
 const names = [
   "Nolann",
@@ -64,6 +160,7 @@ const names = [
 const poopBtn = document.getElementById("poopBtn");
 const log = document.getElementById("log");
 const counter = document.getElementById("counter");
+const confettiContainer = document.getElementById("confetti-container");
 
 let totalPoops = 0;
 
@@ -74,7 +171,32 @@ function updateCounter(n) {
 function addLog(text) {
   const p = document.createElement("p");
   p.textContent = text;
+  p.classList.add("log-entry");
   log.prepend(p);
+}
+
+function createConfetti() {
+  const colors = ['#ff6f61','#ffd966','#ffb347','#ff5c5c','#ff9a9e'];
+  const count = 30;
+
+  for(let i=0; i<count; i++) {
+    const confetti = document.createElement("div");
+    confetti.classList.add("confetti");
+    confetti.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+    confetti.style.left = Math.random() * window.innerWidth + "px";
+    confetti.style.top = "-10px";
+    confetti.style.width = confetti.style.height = (5 + Math.random()*10) + "px";
+    confettiContainer.appendChild(confetti);
+
+    // Anim confetti
+    const animDuration = 3000 + Math.random() * 2000;
+    confetti.animate([
+      { transform: `translateY(0) rotate(0deg)`, opacity: 1 },
+      { transform: `translateY(${window.innerHeight + 50}px) rotate(${360*Math.random()}deg)`, opacity: 0 }
+    ], { duration: animDuration, easing: 'ease-out' });
+
+    setTimeout(() => confetti.remove(), animDuration);
+  }
 }
 
 poopBtn.addEventListener("click", () => {
@@ -85,24 +207,21 @@ poopBtn.addEventListener("click", () => {
 
   fetch(webhookURL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: {"Content-Type": "application/json"},
     body: JSON.stringify({ content: message })
-  })
-  .then(response => {
-    if (response.ok) {
+  }).then(response => {
+    if(response.ok){
       totalPoops++;
       updateCounter(totalPoops);
       addLog(message);
+      createConfetti();
     } else {
       addLog("Erreur lors de l'envoi à Discord");
       console.error("Erreur webhook Discord:", response.statusText);
     }
-  })
-  .catch(error => {
+  }).catch(err => {
     addLog("Erreur réseau ou CORS");
-    console.error("Fetch error:", error);
+    console.error(err);
   });
 });
 </script>
