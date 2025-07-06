@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Nolann au trône 💩</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #fffbe6;
+    text-align: center;
+    padding: 2em;
+  }
+  button {
+    font-size: 2em;
+    padding: 1em 2em;
+    background: #ffb347;
+    border: none;
+    border-radius: 1em;
+    cursor: pointer;
+    margin-bottom: 1em;
+  }
+  #log {
+    max-width: 400px;
+    margin: auto;
+    text-align: left;
+    font-size: 1.2em;
+    min-height: 150px;
+    border: 2px solid #ffb347;
+    border-radius: 1em;
+    padding: 1em;
+    background: #fff9d6;
+    overflow-y: auto;
+  }
+  #counter {
+    font-weight: bold;
+    font-size: 1.5em;
+    margin-bottom: 1em;
+  }
+</style>
+</head>
+<body>
+
+<h1>Nolann au trône 💩</h1>
+<div id="counter">Cacas totaux : 0</div>
+<button id="poopBtn">J’ai fait caca</button>
+<div id="log"></div>
+
+<script type="module">
+// --- Remplace ici par ta config Firebase ---
+const firebaseConfig = {
+  apiKey: "TA_CLE_API",
+  authDomain: "TON_DOMAINE.firebaseapp.com",
+  databaseURL: "https://TON_DOMAINE.firebaseio.com",
+  projectId: "TON_PROJET_ID",
+  storageBucket: "TON_DOMAINE.appspot.com",
+  messagingSenderId: "TON_ID",
+  appId: "TON_APP_ID"
+};
+// -----------------------------------------
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.24.0/firebase-app.js";
+import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.24.0/firebase-database.js";
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const names = [
+  "Nolann",
+  "Tonton",
+  "No'",
+  "Le breton de merde",
+  "Le leve tard",
+  "Le mec de lilou",
+  "Le gars de Mons",
+  "La femme de menage du centre aere",
+  "Le conducteur de la boite a petasse"
+];
+
+const poopBtn = document.getElementById("poopBtn");
+const log = document.getElementById("log");
+const counter = document.getElementById("counter");
+
+function updateCounter(n) {
+  counter.textContent = "Cacas totaux : " + n;
+}
+
+function addLog(text) {
+  const p = document.createElement("p");
+  p.textContent = text;
+  log.prepend(p);
+}
+
+const poopRef = ref(db, "poops");
+
+onValue(poopRef, (snapshot) => {
+  const data = snapshot.val();
+  if (!data) {
+    updateCounter(0);
+    log.innerHTML = "";
+    return;
+  }
+  const keys = Object.keys(data);
+  updateCounter(keys.length);
+  log.innerHTML = "";
+  keys.reverse().forEach(key => {
+    addLog(data[key].message);
+  });
+});
+
+poopBtn.addEventListener("click", () => {
+  const randomName = names[Math.floor(Math.random() * names.length)];
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString();
+  const message = `💩 ${randomName} a fait caca à ${timeStr}`;
+  push(poopRef, { message });
+});
+</script>
+
+</body>
+</html>
