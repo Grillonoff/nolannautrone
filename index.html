@@ -78,6 +78,7 @@
       to {opacity: 1;}
     }
   </style>
+
   <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-database-compat.js"></script>
 </head>
@@ -93,15 +94,6 @@
 <audio id="plopSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" preload="auto"></audio>
 
 <script>
-const firebaseConfig = {
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyDI5hjhSpVJw_1r88GAIIYj3QqgcRUrb4Q",
   authDomain: "nolann-au-trone.firebaseapp.com",
@@ -135,6 +127,22 @@ const plopSound = document.getElementById("plopSound");
 
 let cooldown = false;
 const cooldownTime = 10000;
+
+// 🔔 Notifications navigateur
+if ("Notification" in window && Notification.permission !== "granted") {
+  Notification.requestPermission().then(permission => {
+    console.log("Notification permission:", permission);
+  });
+}
+
+function sendLocalNotification(message) {
+  if ("Notification" in window && Notification.permission === "granted") {
+    new Notification("💩 Alerte Caca", {
+      body: message,
+      icon: "https://cdn-icons-png.flaticon.com/512/616/616408.png"
+    });
+  }
+}
 
 function updateCounter(n) {
   counter.textContent = "Cacas totaux : " + n;
@@ -193,6 +201,7 @@ function setCooldown() {
 }
 
 const poopRef = db.ref("poops");
+
 poopRef.on("value", (snapshot) => {
   const data = snapshot.val();
   if (!data) {
@@ -208,6 +217,14 @@ poopRef.on("value", (snapshot) => {
   });
 });
 
+// 🔔 Envoie la notif locale à chaque nouveau caca
+poopRef.limitToLast(1).on("child_added", (snapshot) => {
+  const data = snapshot.val();
+  if (data && data.message) {
+    sendLocalNotification(data.message);
+  }
+});
+
 poopBtn.addEventListener("click", () => {
   if (cooldown) return;
   const name = pseudoSelect.value;
@@ -221,6 +238,7 @@ poopBtn.addEventListener("click", () => {
 
 modeToggle.addEventListener("click", toggleMode);
 pseudoSelect.addEventListener("change", savePseudo);
+
 populatePseudos();
 loadPseudo();
 </script>
