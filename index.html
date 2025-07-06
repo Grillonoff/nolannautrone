@@ -1,43 +1,112 @@
 <!DOCTYPE html>
-<html>
-<head><title>Poop Alert</title></head>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Nolann au trône 💩</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #fffbe6;
+    text-align: center;
+    padding: 2em;
+  }
+  button {
+    font-size: 2em;
+    padding: 1em 2em;
+    background: #ffb347;
+    border: none;
+    border-radius: 1em;
+    cursor: pointer;
+    margin-bottom: 1em;
+  }
+  #log {
+    max-width: 400px;
+    margin: auto;
+    text-align: left;
+    font-size: 1.2em;
+    min-height: 150px;
+    border: 2px solid #ffb347;
+    border-radius: 1em;
+    padding: 1em;
+    background: #fff9d6;
+    overflow-y: auto;
+  }
+  #counter {
+    font-weight: bold;
+    font-size: 1.5em;
+    margin-bottom: 1em;
+  }
+</style>
+</head>
 <body>
+
+<h1>Nolann au trône 💩</h1>
+<div id="counter">Cacas totaux : 0</div>
 <button id="poopBtn">J’ai fait caca</button>
-<script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-database-compat.js"></script>
+<div id="log"></div>
+
 <script>
-  // Ta config Firebase ici
-const firebaseConfig = {
-  apiKey: "AIzaSyAwBntD-gnp8B16p_5qvDx3Yk_w6fJjIqg",
-  authDomain: "nolann-au-trone.firebaseapp.com",
-  databaseURL: "https://nolann-au-trone-default-rtdb.firebaseio.com",
-  projectId: "nolann-au-trone",
-  storageBucket: "nolann-au-trone.appspot.com",
-  messagingSenderId: "84067497611",
-  appId: "1:84067497611:web:f41194ed5176cfba994c4e"
-};
+const webhookURL = "https://discord.com/api/webhooks/TON_ID/TON_TOKEN"; // Remplace par ton webhook Discord
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
+const names = [
+  "Nolann",
+  "Tonton",
+  "No'",
+  "Le breton de merde",
+  "Le leve tard",
+  "Le mec de lilou",
+  "Le gars de Mons",
+  "La femme de menage du centre aere",
+  "Le conducteur de la boite a petasse"
+];
 
-  // Demande permission notif
-  if("Notification" in window && Notification.permission !== "granted"){
-    Notification.requestPermission();
-  }
+const poopBtn = document.getElementById("poopBtn");
+const log = document.getElementById("log");
+const counter = document.getElementById("counter");
 
-  // Sur événement en base, affiche notif
-  const poopRef = db.ref("poops");
-  poopRef.limitToLast(1).on("child_added", snap=>{
-    const msg = snap.val().message;
-    if(Notification.permission === "granted"){
-      new Notification("Poop Alert", {body: msg});
+let totalPoops = 0;
+
+function updateCounter(n) {
+  counter.textContent = "Cacas totaux : " + n;
+}
+
+function addLog(text) {
+  const p = document.createElement("p");
+  p.textContent = text;
+  log.prepend(p);
+}
+
+poopBtn.addEventListener("click", () => {
+  const randomName = names[Math.floor(Math.random() * names.length)];
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString();
+  const message = `💩 ${randomName} a fait caca à ${timeStr}`;
+
+  // Envoi au webhook Discord
+  fetch(webhookURL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ content: message })
+  })
+  .then(response => {
+    if (response.ok) {
+      totalPoops++;
+      updateCounter(totalPoops);
+      addLog(message);
+    } else {
+      addLog("Erreur lors de l'envoi à Discord");
+      console.error("Erreur webhook Discord:", response.statusText);
     }
+  })
+  .catch(error => {
+    addLog("Erreur réseau ou CORS");
+    console.error("Fetch error:", error);
   });
-
-  document.getElementById("poopBtn").onclick = () => {
-    const msg = `Ton pote a fait caca à ${new Date().toLocaleTimeString()}`;
-    db.ref("poops").push({message: msg});
-  }
+});
 </script>
+
 </body>
 </html>
