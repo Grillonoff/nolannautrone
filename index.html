@@ -47,7 +47,7 @@
 <div id="log"></div>
 
 <script>
-const webhookURL = "https://discord.com/api/webhooks/TON_ID/TON_TOKEN"; // Remplace par ton webhook Discord
+const webhookURL = "https://discord.com/api/webhooks/1391523815632277657/8IQKeEuYyHNE9TcnmTzEtOZi5EaQG8Baq-01W32xN3bRXY-PubyuKkAycI9GyZrh9gYf";
 
 const names = [
   "Nolann",
@@ -83,7 +83,6 @@ poopBtn.addEventListener("click", () => {
   const timeStr = now.toLocaleTimeString();
   const message = `💩 ${randomName} a fait caca à ${timeStr}`;
 
-  // Envoi au webhook Discord
   fetch(webhookURL, {
     method: "POST",
     headers: {
