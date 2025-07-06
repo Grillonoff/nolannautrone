@@ -89,26 +89,21 @@
 <label for="pseudoSelect">Choisis ton pseudo :</label><br />
 <select id="pseudoSelect"></select>
 <div id="counter">Cacas totaux : 0</div>
-<button id="poopBtn">J’ai fait caca</button>
+<button id="poopBtn">J'ai fait caca</button>
 <div id="log"></div>
 <audio id="plopSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" preload="auto"></audio>
 
 <script>
 const firebaseConfig = {
-  apiKey: "AIzaSyDI5hjhSpVJw_1r88GAIIYj3QqgcRUrb4Q",
-  authDomain: "nolann-au-trone.firebaseapp.com",
-  databaseURL: "https://nolann-au-trone-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "nolann-au-trone",
-  storageBucket: "nolann-au-trone.firebasestorage.app",
-  messagingSenderId: "759474496236",
-  appId: "1:759474496236:web:f0ed66bfc48e4291d5fbc9",
-  measurementId: "G-3BR7K8HXZX"
+  apiKey: "TA_CLE_API",
+  authDomain: "TON_DOMAINE.firebaseapp.com",
+  databaseURL: "https://TON_DOMAINE.firebaseio.com",
+  projectId: "TON_PROJET_ID",
+  storageBucket: "TON_DOMAINE.appspot.com",
+  messagingSenderId: "TON_ID",
+  appId: "TON_APP_ID"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-};
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
@@ -128,7 +123,7 @@ const plopSound = document.getElementById("plopSound");
 let cooldown = false;
 const cooldownTime = 10000;
 
-// 🔔 Notifications navigateur
+// Demande permission notifications
 if ("Notification" in window && Notification.permission !== "granted") {
   Notification.requestPermission().then(permission => {
     console.log("Notification permission:", permission);
@@ -193,7 +188,7 @@ function setCooldown() {
       clearInterval(interval);
       cooldown = false;
       poopBtn.disabled = false;
-      poopBtn.textContent = "J’ai fait caca";
+      poopBtn.textContent = "J'ai fait caca";
     } else {
       poopBtn.textContent = `Attends ${count}s...`;
     }
@@ -217,7 +212,6 @@ poopRef.on("value", (snapshot) => {
   });
 });
 
-// 🔔 Envoie la notif locale à chaque nouveau caca
 poopRef.limitToLast(1).on("child_added", (snapshot) => {
   const data = snapshot.val();
   if (data && data.message) {
