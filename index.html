@@ -1,242 +1,42 @@
 <!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Nolann au trône 💩</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #fffbe6;
-      text-align: center;
-      padding: 2em;
-      transition: background 0.5s, color 0.5s;
-    }
-    body.night {
-      background: #2c2b29;
-      color: #c7c4bb;
-    }
-    button {
-      font-size: 2em;
-      padding: 1em 2em;
-      background: #ffb347;
-      border: none;
-      border-radius: 1em;
-      cursor: pointer;
-      margin-bottom: 1em;
-      transition: background 0.3s;
-    }
-    button:disabled {
-      background: #d3b16e;
-      cursor: not-allowed;
-    }
-    #log {
-      max-width: 400px;
-      margin: auto;
-      text-align: left;
-      font-size: 1.2em;
-      min-height: 150px;
-      border: 2px solid #ffb347;
-      border-radius: 1em;
-      padding: 1em;
-      background: #fff9d6;
-      overflow-y: auto;
-    }
-    body.night #log {
-      background: #45443f;
-      border-color: #a08846;
-    }
-    #counter {
-      font-weight: bold;
-      font-size: 1.5em;
-      margin-bottom: 1em;
-    }
-    #modeToggle {
-      margin-bottom: 1em;
-      cursor: pointer;
-      font-size: 1em;
-      padding: 0.5em 1em;
-      background: #ccc;
-      border: none;
-      border-radius: 0.5em;
-    }
-    body.night #modeToggle {
-      background: #555;
-      color: #ddd;
-    }
-    #pseudoSelect {
-      font-size: 1.2em;
-      margin-bottom: 1em;
-      padding: 0.3em 0.5em;
-      border-radius: 0.3em;
-    }
-    .fade-in {
-      animation: fadeIn 0.5s ease forwards;
-    }
-    @keyframes fadeIn {
-      from {opacity: 0;}
-      to {opacity: 1;}
-    }
-  </style>
-
-  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-database-compat.js"></script>
-</head>
+<html>
+<head><title>Poop Alert</title></head>
 <body>
-
-<h1>Nolann au trône 💩</h1>
-<button id="modeToggle">Activer mode nuit</button><br />
-<label for="pseudoSelect">Choisis ton pseudo :</label><br />
-<select id="pseudoSelect"></select>
-<div id="counter">Cacas totaux : 0</div>
-<button id="poopBtn">J'ai fait caca</button>
-<div id="log"></div>
-<audio id="plopSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" preload="auto"></audio>
-
+<button id="poopBtn">J’ai fait caca</button>
+<script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-database-compat.js"></script>
 <script>
-const firebaseConfig = {
-  apiKey: "TA_CLE_API",
-  authDomain: "TON_DOMAINE.firebaseapp.com",
-  databaseURL: "https://TON_DOMAINE.firebaseio.com",
-  projectId: "TON_PROJET_ID",
-  storageBucket: "TON_DOMAINE.appspot.com",
-  messagingSenderId: "TON_ID",
-  appId: "TON_APP_ID"
-};
+  // Ta config Firebase ici
+  const firebaseConfig = {
+    apiKey: "TA_CLE_API",
+    authDomain: "TON_DOMAINE.firebaseapp.com",
+    databaseURL: "https://TON_DOMAINE.firebaseio.com",
+    projectId: "TON_PROJET_ID",
+    storageBucket: "TON_DOMAINE.appspot.com",
+    messagingSenderId: "TON_ID",
+    appId: "TON_APP_ID"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-const names = [
-  "Nolann", "Tonton", "No'", "Le breton de merde",
-  "Le leve tard", "Le mec de lilou", "Le gars de Mons",
-  "La femme de menage du centre aere", "Le conducteur de la boite a petasse"
-];
-
-const poopBtn = document.getElementById("poopBtn");
-const log = document.getElementById("log");
-const counter = document.getElementById("counter");
-const pseudoSelect = document.getElementById("pseudoSelect");
-const modeToggle = document.getElementById("modeToggle");
-const plopSound = document.getElementById("plopSound");
-
-let cooldown = false;
-const cooldownTime = 10000;
-
-// Demande permission notifications
-if ("Notification" in window && Notification.permission !== "granted") {
-  Notification.requestPermission().then(permission => {
-    console.log("Notification permission:", permission);
-  });
-}
-
-function sendLocalNotification(message) {
-  if ("Notification" in window && Notification.permission === "granted") {
-    new Notification("💩 Alerte Caca", {
-      body: message,
-      icon: "https://cdn-icons-png.flaticon.com/512/616/616408.png"
-    });
+  // Demande permission notif
+  if("Notification" in window && Notification.permission !== "granted"){
+    Notification.requestPermission();
   }
-}
 
-function updateCounter(n) {
-  counter.textContent = "Cacas totaux : " + n;
-}
-
-function addLog(text) {
-  const p = document.createElement("p");
-  p.textContent = text;
-  p.classList.add("fade-in");
-  log.prepend(p);
-}
-
-function populatePseudos() {
-  pseudoSelect.innerHTML = "";
-  names.forEach(name => {
-    const opt = document.createElement("option");
-    opt.value = name;
-    opt.textContent = name;
-    pseudoSelect.appendChild(opt);
-  });
-}
-
-function loadPseudo() {
-  const saved = localStorage.getItem("pseudoPoopAlert");
-  if (saved && names.includes(saved)) {
-    pseudoSelect.value = saved;
-  }
-}
-
-function savePseudo() {
-  localStorage.setItem("pseudoPoopAlert", pseudoSelect.value);
-}
-
-function toggleMode() {
-  document.body.classList.toggle("night");
-  modeToggle.textContent = document.body.classList.contains("night") ?
-    "Désactiver mode nuit" : "Activer mode nuit";
-}
-
-function setCooldown() {
-  cooldown = true;
-  poopBtn.disabled = true;
-  let count = cooldownTime / 1000;
-  poopBtn.textContent = `Attends ${count}s...`;
-  const interval = setInterval(() => {
-    count--;
-    if (count <= 0) {
-      clearInterval(interval);
-      cooldown = false;
-      poopBtn.disabled = false;
-      poopBtn.textContent = "J'ai fait caca";
-    } else {
-      poopBtn.textContent = `Attends ${count}s...`;
+  // Sur événement en base, affiche notif
+  const poopRef = db.ref("poops");
+  poopRef.limitToLast(1).on("child_added", snap=>{
+    const msg = snap.val().message;
+    if(Notification.permission === "granted"){
+      new Notification("Poop Alert", {body: msg});
     }
-  }, 1000);
-}
-
-const poopRef = db.ref("poops");
-
-poopRef.on("value", (snapshot) => {
-  const data = snapshot.val();
-  if (!data) {
-    updateCounter(0);
-    log.innerHTML = "";
-    return;
-  }
-  const keys = Object.keys(data);
-  updateCounter(keys.length);
-  log.innerHTML = "";
-  keys.reverse().slice(0, 10).forEach(key => {
-    addLog(data[key].message);
   });
-});
 
-poopRef.limitToLast(1).on("child_added", (snapshot) => {
-  const data = snapshot.val();
-  if (data && data.message) {
-    sendLocalNotification(data.message);
+  document.getElementById("poopBtn").onclick = () => {
+    const msg = `Ton pote a fait caca à ${new Date().toLocaleTimeString()}`;
+    db.ref("poops").push({message: msg});
   }
-});
-
-poopBtn.addEventListener("click", () => {
-  if (cooldown) return;
-  const name = pseudoSelect.value;
-  const timeStr = new Date().toLocaleTimeString();
-  const message = `💩 ${name} a fait caca à ${timeStr}`;
-  db.ref("poops").push({ message });
-  plopSound.currentTime = 0;
-  plopSound.play();
-  setCooldown();
-});
-
-modeToggle.addEventListener("click", toggleMode);
-pseudoSelect.addEventListener("change", savePseudo);
-
-populatePseudos();
-loadPseudo();
 </script>
-
 </body>
 </html>
-#test 
